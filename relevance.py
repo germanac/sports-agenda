@@ -1,87 +1,218 @@
 """
-Sistema de scoring de relevancia para el grupo Koleos.
-Retorna un score (menor = más prioritario) y tags de display.
+Sistema de relevancia para el grupo Koleos.
+El score refleja el valor deportivo real del evento, no una lista de nombres.
+Score: 0 = imperdible, 100 = ignorar.
 """
-from config import (
-    FAVORITE_FOOTBALL_TEAMS, TOP_NATIONAL_TEAMS,
-    MINOR_NATIONS, RUGBY_PRIORITY_TEAMS, RUGBY_MAJOR_COMPETITIONS
-)
+from config import FAVORITE_FOOTBALL_TEAMS, TIMEZONE
+import pytz
+
+MX_TZ = pytz.timezone(TIMEZONE)
+
+# ── Tier de selecciones de fútbol (por ranking FIFA / historial competitivo) ──
+#
+# Tier 1 — candidatos al título, siempre relevantes
+TIER1_NATIONS = {
+    "france", "brazil", "argentina", "england", "spain", "germany",
+    "portugal", "netherlands", "belgium", "croatia", "italy", "uruguay",
+}
+# Tier 2 — selecciones sólidas, interesantes en contexto
+TIER2_NATIONS = {
+    "denmark", "switzerland", "austria", "turkey", "poland", "serbia",
+    "colombia", "mexico", "usa", "united states", "senegal", "morocco",
+    "japan", "south korea", "ecuador", "chile", "peru", "nigeria",
+    "côte d'ivoire", "ivory coast", "egypt", "australia", "new zealand",
+    "wales", "scotland", "czech republic", "czechia", "hungary", "ukraine",
+    "slovakia", "iran", "saudi arabia", "south africa",
+}
+# Tier 3 — el resto: no interesan en fase de grupos del Mundial
+
+# ── Tier de clubes de fútbol ──────────────────────────────────────────────────
+# Clubes que siempre son relevantes en Champions/Premier/LaLiga
+ELITE_CLUBS = {
+    # España
+    "real madrid", "barcelona", "atletico madrid", "athletic bilbao", "villarreal",
+    # Inglaterra
+    "manchester city", "arsenal", "liverpool", "chelsea", "manchester united",
+    "tottenham", "newcastle", "aston villa",
+    # Alemania (si vuelve a Champions)
+    "bayern munich", "borussia dortmund", "bayer leverkusen",
+    # Italia
+    "inter", "milan", "juventus", "napoli",
+    # Francia
+    "paris saint-germain", "psg",
+    # Argentina — ya cubiertos por FAVORITE_FOOTBALL_TEAMS
+    "river plate", "boca juniors", "estudiantes",
+    "racing", "independiente", "san lorenzo", "velez",
+    # Brasil (Libertadores)
+    "flamengo", "palmeiras", "fluminense", "atletico mineiro",
+}
+
+# ── Palabras clave de fase eliminatoria ────────────────────────────────────────
+KNOCKOUT_KEYWORDS = {
+    "final", "semifinal", "semi-final", "quarter", "cuarto",
+    "round of 16", "octavos", "last 16", "r16",
+    "copa", "championship", "title",
+}
+
+PHASE_WEIGHT = {
+    "final":       0,
+    "semifinal":   3,
+    "quarterfinal":7,
+    "round of 16": 12,
+}
 
 
-def _contains(text, terms):
-    t = text.lower()
-    return any(term.lower() in t for term in terms)
+def _t(text):
+    return str(text).lower().strip()
+
+
+def _in(text, group):
+    t = _t(text)
+    return any(item in t for item in group)
+
+
+def _tier(nation_name):
+    n = _t(nation_name)
+    if n in TIER1_NATIONS:
+        return 1
+    if n in TIER2_NATIONS:
+        return 2
+    return 3
+
+
+def _is_club_elite(name):
+    return _in(name, ELITE_CLUBS)
+
+
+def _is_club_favorite(name):
+    favs = [_t(f) for f in FAVORITE_FOOTBALL_TEAMS]
+    return _in(name, favs)
+
+
+def _knockout_phase(note):
+    """Detecta si el partido es eliminatorio y qué fase, desde la nota del evento."""
+    n = _t(note)
+    for kw, weight in PHASE_WEIGHT.items():
+        if kw in n:
+            return True, weight
+    for kw in KNOCKOUT_KEYWORDS:
+        if kw in n:
+            return True, 10
+    return False, 99
+
+
+def _match_value(home, away, note=""):
+    """
+    Calcula el valor de un partido entre home y away.
+    Retorna score base (sin aplicar peso de liga).
+    """
+    # Favoritos del grupo → siempre
+    if _is_club_favorite(home) or _is_club_favorite(away):
+        return 0, True
+
+    # Elite clubs → alta prioridad
+    home_elite = _is_club_elite(home)
+    away_elite = _is_club_elite(away)
+
+    is_ko, phase_score = _knockout_phase(note)
+
+    if home_elite and away_elite:
+        return min(5, phase_score), False    # partido grande
+    if home_elite or away_elite:
+        return min(20, phase_score + 10), False
+    if is_ko:
+        return phase_score + 5, False       # knockout sin élite = algo importa
+    return 50, False                         # partido genérico
+
+
+def _national_match_value(home, away, note="", league=""):
+    """Valor de un partido entre selecciones."""
+    h_tier = _tier(home)
+    a_tier = _tier(away)
+
+    # Argentina → siempre
+    if _in(home, ["argentina"]) or _in(away, ["argentina"]):
+        return 0, True
+
+    is_ko, phase_score = _knockout_phase(note)
+    league_l = _t(league)
+
+    # Final de cualquier cosa → mostrar
+    if "final" in league_l or phase_score == 0:
+        return 2, False
+
+    # Ambos Tier 1 → siempre interesante
+    if h_tier == 1 and a_tier == 1:
+        return 8, False
+
+    # Un Tier1 vs Tier2 → depende de la fase
+    if min(h_tier, a_tier) == 1:
+        if is_ko:
+            return 10, False
+        return 18, False    # grupo con top
+
+    # Tier2 vs Tier2 → solo si es fase eliminatoria o competencia importante
+    if h_tier == 2 and a_tier == 2:
+        if is_ko:
+            return 20, False
+        return 55, False    # poco interesante en grupos
+
+    # Tier3 involucrado → ignorar salvo que sea KO de competencia mayor
+    if is_ko and phase_score <= 12:
+        return 40, False
+    return 90, False         # descartar
 
 
 def score_football(event):
-    """
-    Retorna (score, is_favorite, tags).
-    Score: 0 = imperdible, 100 = ignorar.
-    """
     home   = event.get("home", "")
     away   = event.get("away", "")
     league = event.get("league", "")
-    both   = f"{home} {away} {league}"
+    note   = event.get("note", "")
+    tags   = []
 
-    tags = []
-    score = 50  # default
+    is_national = _in(league, [
+        "world cup", "mundial", "copa america", "euro", "nations league",
+        "conmebol qualif", "world qualif", "six nations", "nations cup",
+    ])
 
-    # ── Favoritos del grupo ──────────────────────────────────────
-    is_fav = _contains(both, FAVORITE_FOOTBALL_TEAMS)
-    if is_fav:
-        score = 0
-        if _contains(both, ["River Plate"]):
-            tags.append("🔴⚪ RIVER")
-        if _contains(both, ["Boca Juniors"]):
-            tags.append("🔵🟡 BOCA")
-        if _contains(both, ["Estudiantes"]):
-            tags.append("🔴⚫ EL PINCHA")
+    if is_national:
+        score, is_fav = _national_match_value(home, away, note, league)
+        if _in(home + away, ["argentina"]):
+            tags.append("🇦🇷 ARGENTINA")
+        elif score <= 8:
+            tags.append("🌍 MUNDIAL TOP")
+        elif score <= 20:
+            tags.append("🌍 MUNDIAL")
+        elif score < 88:
+            tags.append("🌍 GRUPO")
+    else:
+        score, is_fav = _match_value(home, away, note)
 
-    # ── Mundial (lógica especial) ────────────────────────────────
-    if "world" in league.lower() or "mundial" in league.lower() or "FIFA.WORLD" in league:
-        phase = event.get("phase", "").lower()
-        note  = event.get("note", "").lower()
-        is_knockout = any(x in note for x in ["round of 16", "quarter", "semi", "final",
-                                               "octavos", "cuartos", "semis"])
-        has_top = _contains(both, TOP_NATIONAL_TEAMS)
-        has_arg = _contains(both, ["Argentina"])
+        # Tags por liga
+        if _in(league, ["world cup", "fifa.world"]):
+            tags.append("🏆 MUNDIAL")
+        elif _in(league, ["champions"]):
+            is_ko, ps = _knockout_phase(note)
+            tags.append("👑 UCL FINAL" if ps <= 3 else "👑 UCL")
+        elif _in(league, ["premier"]):
+            tags.append("🏴󠁧󠁢󠁥󠁮󠁧󠁿 PREMIER")
+        elif _in(league, ["laliga", "esp.1", "española"]):
+            tags.append("🇪🇸 LALIGA")
+        elif _in(league, ["copa del rey"]):
+            tags.append("🥇 COPA REY")
+        elif _in(league, ["argentine", "arg.1", "primera"]):
+            tags.append("🇦🇷 ARG")
+        elif _in(league, ["libertadores"]):
+            tags.append("🏆 LIBERTADORES")
+        elif _in(league, ["sudamericana"]):
+            tags.append("🏆 SUDAMERICANA")
 
-        if has_arg:
-            score = 0; tags.append("🇦🇷 ARGENTINA"); is_fav = True
-        elif is_knockout:
-            score = 5; tags.append("🏆 MUNDIAL KO")
-        elif has_top:
-            score = 10; tags.append("🌍 MUNDIAL")
-        else:
-            # Fase de grupos, sin selecciones top → ignorar
-            return 90, False, []
-
-    # ── Ligas europeas ───────────────────────────────────────────
-    elif _contains(league, ["Champions", "UEFA Champions"]):
-        phase = event.get("note", "").lower()
-        if any(x in phase for x in ["final", "semi", "quarter", "cuarto"]):
-            score = min(score, 5); tags.append("👑 UCL")
-        elif not is_fav:
-            score = min(score, 20); tags.append("🏆 UCL")
-
-    elif _contains(league, ["Premier League", "Premier"]):
-        score = min(score, 25); tags.append("🏴󠁧󠁢󠁥󠁮󠁧󠁿 PREMIER")
-
-    elif _contains(league, ["LaLiga", "Liga Española", "esp.1", "española"]):
-        score = min(score, 30); tags.append("🇪🇸 LALIGA")
-
-    elif _contains(league, ["Copa del Rey"]):
-        score = min(score, 35); tags.append("🥇 COPA REY")
-
-    elif _contains(league, ["Argentine Primera", "arg.1", "Primera División"]):
-        if not is_fav:
-            score = min(score, 15); tags.append("🇦🇷 ARG")
-
-    elif _contains(league, ["Libertadores"]):
-        score = min(score, 20); tags.append("🏆 LIBERTADORES")
-
-    elif _contains(league, ["Sudamericana"]):
-        score = min(score, 25); tags.append("🏆 SUDAMERICANA")
+        # Tags por equipo favorito
+        if _is_club_favorite(home) or _is_club_favorite(away):
+            for fav in FAVORITE_FOOTBALL_TEAMS:
+                if _in(home + away, [_t(fav)]):
+                    emojis = {"river plate":"🔴⚪","boca juniors":"🔵🟡","estudiantes":"🔴⚫"}
+                    tags.insert(0, f"{emojis.get(_t(fav),'⚽')} {fav.split()[0].upper()}")
 
     return score, is_fav, tags
 
@@ -90,74 +221,89 @@ def score_rugby(event):
     home   = event.get("home", "")
     away   = event.get("away", "")
     league = event.get("league", "")
-    both   = f"{home} {away} {league}"
+    note   = event.get("note", "")
 
-    has_arg = _contains(both, RUGBY_PRIORITY_TEAMS)
-    is_major = _contains(league, RUGBY_MAJOR_COMPETITIONS)
-    is_sevens = "seven" in league.lower()
+    has_arg   = _in(home + away, ["argentina", "pumas"])
+    is_sevens = "seven" in _t(league)
+    is_ko, ps = _knockout_phase(note)
+
+    # Selecciones de primera línea en rugby
+    rugby_top = {"new zealand", "south africa", "ireland", "france", "england",
+                 "australia", "scotland", "wales", "argentina"}
+    h_top = _in(home, rugby_top)
+    a_top = _in(away, rugby_top)
 
     if has_arg:
-        score = 5 if not is_sevens else 10
-        tags  = ["🇦🇷 PUMAS"]
-        is_fav = True
-    elif is_major:
-        # Solo partidos entre selecciones importantes
-        minor_involved = _contains(both, list(MINOR_NATIONS))
-        score = 20 if not minor_involved else 60
-        tags  = ["🏉 RUGBY INT"]
-        is_fav = False
-    else:
-        score = 70
-        tags  = []
-        is_fav = False
+        return 5, True, ["🇦🇷 PUMAS"]
+    if _in(league, ["world cup"]):
+        if h_top and a_top:
+            return 6, False, ["🏆 RWC"]
+        if is_ko:
+            return 12, False, ["🏆 RWC KO"]
+        if h_top or a_top:
+            return 20, False, ["🏉 RWC"]
+        return 85, False, []
+    if _in(league, ["six nations", "rugby championship", "championship"]):
+        if h_top and a_top:
+            return 15, False, ["🏉 INT"]
+        if is_ko or "final" in _t(note):
+            return 12, False, ["🏉 FINAL"]
+        return 35, False, ["🏉 INT"]
 
-    return score, is_fav, tags
+    return 70, False, []
 
 
 def score_f1(event):
-    home = event.get("home", "").upper()
-    if "CARRERA" in home:
+    home = _t(event.get("home", ""))
+    if "carrera" in home or "race" in home:
         return 3, True, ["🏁 CARRERA"]
-    if "CLASIFICACIÓN" in home or "QUALIFYING" in home:
+    if "clasificación" in home or "qualifying" in home:
         return 8, True, ["⏱ QUALY"]
-    if "SPRINT" in home:
+    if "sprint" in home:
         return 12, True, ["⚡ SPRINT"]
-    return 40, False, ["🏎 F1"]
+    # Prácticas: solo mostrar si no hay eventos más importantes
+    return 45, False, ["🏎 PRÁCTICA"]
 
 
 def score_nba(event):
     league = event.get("league", "")
-    if "Finals" in league and "Game" in league:
+    note   = event.get("note", "")
+    l = _t(league + note)
+
+    if "finals" in l and ("game" in l or "final" in l):
         return 8, True, ["🏆 NBA FINALS"]
-    if "Finals" in league:
-        return 10, True, ["🏆 NBA FINALS"]
-    if any(x in league for x in ["Semifinal", "Conference", "Playoff"]):
+    if "conference final" in l or "conference semi" in l:
         return 15, False, ["🏀 PLAYOFFS"]
-    return 80, False, []   # regular season → ignorar
+    if "playoff" in l or "postseason" in l:
+        return 30, False, ["🏀 PLAYOFFS"]
+    return 85, False, []   # regular season → ignorar
 
 
 def score_tennis(event):
     league = event.get("league", "")
     home   = event.get("home", "")
-    is_slam = any(x in league for x in
-                  ["Roland Garros", "Wimbledon", "US Open", "Australian Open", "Grand Slam"])
-    has_arg = _contains(f"{home} {league}", ["Argentina", "Etcheverry", "Cerundolo", "Navone", "Báez"])
-    phase_late = any(x in home.lower() for x in ["final", "semifinal", "quarter"])
+    l = _t(league + home)
+
+    # Argentinos en el circuito
+    arg_players = ["etcheverry", "cerundolo", "navone", "báez", "baez", "argentina"]
+    has_arg = any(p in l for p in arg_players)
+
+    is_slam = any(x in l for x in ["roland garros","wimbledon","us open","australian open","grand slam"])
+    # Etapa definitoria = SF o F
+    is_late = any(x in l for x in ["semifinal","final","sf","qf","quarter"])
 
     if has_arg:
         return 10, True, ["🇦🇷 ARG TENIS"]
-    if is_slam and phase_late:
-        return 15, False, ["🎾 SLAM FINAL"]
+    if is_slam and is_late:
+        return 12, False, ["🎾 SLAM FINAL"]
     if is_slam:
-        return 30, False, ["🎾 SLAM"]
-    return 70, False, []
+        return 28, False, ["🎾 SLAM"]
+    return 75, False, []
 
+
+# ── Entry point ────────────────────────────────────────────────────────────────
 
 def score_event(event):
-    """
-    Puntúa un evento. Retorna el evento enriquecido con score, is_fav, tags.
-    Si score >= 90 → descartar.
-    """
     sport = event.get("sport", "")
     if sport == "Fútbol":
         s, fav, tags = score_football(event)
@@ -176,7 +322,6 @@ def score_event(event):
 
 
 def filter_and_sort(events):
-    """Filtra eventos irrelevantes y ordena por (score, fecha, hora)."""
-    scored = [score_event(e) for e in events]
-    filtered = [e for e in scored if e["score"] < 90]
+    scored   = [score_event(e) for e in events]
+    filtered = [e for e in scored if e["score"] < 88]
     return sorted(filtered, key=lambda e: (e["score"], e["date"], e.get("time_mx", "")))
