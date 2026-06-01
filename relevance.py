@@ -223,7 +223,7 @@ def score_rugby(event):
     league = event.get("league", "")
     note   = event.get("note", "")
 
-    has_arg   = _in(home + away, ["argentina", "pumas"])
+    has_arg   = _in((home or "") + (away or ""), ["argentina", "pumas"])
     is_sevens = "seven" in _t(league)
     is_ko, ps = _knockout_phase(note)
 
