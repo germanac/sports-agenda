@@ -50,13 +50,14 @@
 
   <!-- wordmark -->
   <div style="text-align:center;padding:0 14px 8px;flex-shrink:0">
-    <div style="font-size:40px;font-weight:900;color:#fff;letter-spacing:-2px;line-height:1">KOLEOS</div>
-    <div style="font-size:10px;font-weight:800;color:#1f1f1f;letter-spacing:7px;margin-top:-2px">CDMX</div>
+    <div style="font-size:22px;font-weight:900;color:#fff;letter-spacing:1px;line-height:1">
+        AGENDA DEPORTIVA
+    </div>
     <div style="display:inline-flex;align-items:center;gap:5px;margin-top:5px;
                 background:#111;border-radius:20px;padding:3px 11px;border:1px solid #1c1c1c">
       <span style="color:#f59e0b;font-size:7px">✦</span>
       <span style="font-size:7.5px;font-weight:700;color:#444;letter-spacing:2px;text-transform:uppercase">
-          Agenda Deportiva · 3–7 JUNIO 2026
+          3–7 JUNIO 2026 · CDMX
       </span>
       <span style="color:#f59e0b;font-size:7px">✦</span>
     </div>
@@ -82,149 +83,179 @@
     </div>
     <div style="flex:1;overflow:hidden">
       
-    <div style="display:flex;align-items:center;padding:9px 14px;
-                border-bottom:1px solid #151515;border-left:3px solid #ef4444">
+    <div style="display:flex;align-items:stretch;padding:9px 14px;
+                border-bottom:1px solid #141414;border-left:3px solid #ef4444">
       <!-- día -->
-      <div style="width:32px;text-align:center;flex-shrink:0;margin-right:10px">
-        <div style="font-size:7px;font-weight:800;color:#ef4444;letter-spacing:.5px">DOM</div>
-        <div style="font-size:17px;font-weight:900;color:#fff;line-height:1.05">7</div>
+      <div style="width:34px;flex-shrink:0;margin-right:11px;padding-top:1px">
+        <div style="font-size:7px;font-weight:800;color:#ef4444;letter-spacing:.5px;text-align:center">DOM</div>
+        <div style="font-size:18px;font-weight:900;color:#fff;line-height:1;text-align:center">7</div>
       </div>
-      <!-- info -->
-      <div style="flex:1;min-width:0;overflow:hidden">
-        <div style="font-size:7.5px;color:#444;font-weight:700;white-space:nowrap;
-                    overflow:hidden;text-overflow:ellipsis;margin-bottom:1px">
+      <!-- info — bloque con ancho fijo para que el ellipsis funcione -->
+      <div style="flex:1;min-width:0">
+        <!-- liga -->
+        <div style="font-size:7px;color:#3a3a3a;font-weight:700;
+                    white-space:nowrap;overflow:hidden;text-overflow:ellipsis;margin-bottom:2px">
             🏎 F1 2026
         </div>
-        <div style="font-size:12px;font-weight:800;color:#fff;white-space:nowrap;
-                    overflow:hidden;text-overflow:ellipsis;display:flex;align-items:center">
-            CARRERA — Monaco Grand Prix<span style="color:#ef4444;font-size:8px;margin-left:3px">●</span><span style="background:#ef444422;color:#ef4444;border-radius:3px;padding:1px 5px;font-size:7px;font-weight:800;letter-spacing:.5px;margin-left:4px">🏁 CARRERA</span>
+        <!-- tag encima del nombre -->
+        <span style="display:inline-block;background:#ef444422;color:#ef4444;border-radius:3px;padding:1px 5px;font-size:7px;font-weight:800;letter-spacing:.5px;margin-bottom:3px">🏁 CARRERA</span>
+        <!-- nombre partido: bloque, no flex → ellipsis funciona -->
+        <div style="font-size:12.5px;font-weight:800;color:#fff;
+                    white-space:nowrap;overflow:hidden;text-overflow:ellipsis;
+                    display:block;line-height:1.2">
+            <span style="color:#ef4444;font-size:7px;margin-right:4px">●</span>CARRERA — Monaco Grand Prix
         </div>
-        <div style="margin-top:3px;display:flex;align-items:center;gap:4px">
-            <span style="background:#ffffff10;border-radius:3px;padding:1px 5px;font-size:8px;color:#777;font-weight:600">·F1 TV</span>
-        </div>
-        <div style="font-size:8.5px;color:#555;font-style:italic;margin-top:3px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">"Manu viene bancando a Colap desde el día uno. El sábado a las 22 se abre…"</div>
+        <!-- canal -->
+        <div style="margin-top:4px"><span style="background:#ffffff0f;border-radius:3px;padding:1px 6px;font-size:7.5px;color:#666;font-weight:600">·F1 TV</span></div>
+        <div style="font-size:8px;color:#4a4a4a;font-style:italic;margin-top:3px;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden;line-height:1.35">"Manu viene bancando a Colap desde el día uno. El sábado a las 22 se abre el millón — ¿quién tiene ra…"</div>
       </div>
-      <!-- hora -->
-      <div style="flex-shrink:0;margin-left:10px;text-align:right">
-        <div style="font-size:15px;font-weight:900;color:#fff;line-height:1;
-                    white-space:nowrap">07:00</div>
-        <div style="font-size:6.5px;color:#333;margin-top:1px;font-weight:600">CDMX</div>
+      <!-- hora — alineada al centro verticalmente -->
+      <div style="flex-shrink:0;margin-left:10px;display:flex;flex-direction:column;
+                  justify-content:center;align-items:flex-end">
+        <div style="font-size:16px;font-weight:900;color:#fff;line-height:1;white-space:nowrap">
+            07:00
+        </div>
+        <div style="font-size:6.5px;color:#2e2e2e;margin-top:2px;font-weight:700">CDMX</div>
       </div>
     </div>
-    <div style="display:flex;align-items:center;padding:9px 14px;
-                border-bottom:1px solid #151515;border-left:3px solid #f97316">
+    <div style="display:flex;align-items:stretch;padding:9px 14px;
+                border-bottom:1px solid #141414;border-left:3px solid #f97316">
       <!-- día -->
-      <div style="width:32px;text-align:center;flex-shrink:0;margin-right:10px">
-        <div style="font-size:7px;font-weight:800;color:#f97316;letter-spacing:.5px">MIÉ</div>
-        <div style="font-size:17px;font-weight:900;color:#fff;line-height:1.05">3</div>
+      <div style="width:34px;flex-shrink:0;margin-right:11px;padding-top:1px">
+        <div style="font-size:7px;font-weight:800;color:#f97316;letter-spacing:.5px;text-align:center">MIÉ</div>
+        <div style="font-size:18px;font-weight:900;color:#fff;line-height:1;text-align:center">3</div>
       </div>
-      <!-- info -->
-      <div style="flex:1;min-width:0;overflow:hidden">
-        <div style="font-size:7.5px;color:#444;font-weight:700;white-space:nowrap;
-                    overflow:hidden;text-overflow:ellipsis;margin-bottom:1px">
-            🏀 NBA — NBA FINALS - GAME 
+      <!-- info — bloque con ancho fijo para que el ellipsis funcione -->
+      <div style="flex:1;min-width:0">
+        <!-- liga -->
+        <div style="font-size:7px;color:#3a3a3a;font-weight:700;
+                    white-space:nowrap;overflow:hidden;text-overflow:ellipsis;margin-bottom:2px">
+            🏀 NBA — NBA FINALS - GAME 1
         </div>
-        <div style="font-size:12px;font-weight:800;color:#fff;white-space:nowrap;
-                    overflow:hidden;text-overflow:ellipsis;display:flex;align-items:center">
-            San Antonio Spurs<span style="color:#f97316;font-size:8px;margin-left:3px">●</span><span style="background:#f9731622;color:#f97316;border-radius:3px;padding:1px 5px;font-size:7px;font-weight:800;letter-spacing:.5px;margin-left:4px">🏆 NBA FINALS</span>
+        <!-- tag encima del nombre -->
+        <span style="display:inline-block;background:#f9731622;color:#f97316;border-radius:3px;padding:1px 5px;font-size:7px;font-weight:800;letter-spacing:.5px;margin-bottom:3px">🏆 NBA FINALS</span>
+        <!-- nombre partido: bloque, no flex → ellipsis funciona -->
+        <div style="font-size:12.5px;font-weight:800;color:#fff;
+                    white-space:nowrap;overflow:hidden;text-overflow:ellipsis;
+                    display:block;line-height:1.2">
+            <span style="color:#f97316;font-size:7px;margin-right:4px">●</span>San Antonio Spurs
         </div>
-        <div style="margin-top:3px;display:flex;align-items:center;gap:4px">
-            <span style="background:#ffffff10;border-radius:3px;padding:1px 5px;font-size:8px;color:#777;font-weight:600">·ABC</span>
-        </div>
-        <div style="font-size:8.5px;color:#555;font-style:italic;margin-top:3px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">"NBA Finals en casa. San Antonio Spurs vs New York Knicks — Rama dice que…"</div>
+        <!-- canal -->
+        <div style="margin-top:4px"><span style="background:#ffffff0f;border-radius:3px;padding:1px 6px;font-size:7.5px;color:#666;font-weight:600">·ABC</span></div>
+        <div style="font-size:8px;color:#4a4a4a;font-style:italic;margin-top:3px;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden;line-height:1.35">"NBA Finals en casa. San Antonio Spurs vs New York Knicks — Rama dice que lo ve pero siempre se duerm…"</div>
       </div>
-      <!-- hora -->
-      <div style="flex-shrink:0;margin-left:10px;text-align:right">
-        <div style="font-size:15px;font-weight:900;color:#fff;line-height:1;
-                    white-space:nowrap">18:30</div>
-        <div style="font-size:6.5px;color:#333;margin-top:1px;font-weight:600">CDMX</div>
+      <!-- hora — alineada al centro verticalmente -->
+      <div style="flex-shrink:0;margin-left:10px;display:flex;flex-direction:column;
+                  justify-content:center;align-items:flex-end">
+        <div style="font-size:16px;font-weight:900;color:#fff;line-height:1;white-space:nowrap">
+            18:30
+        </div>
+        <div style="font-size:6.5px;color:#2e2e2e;margin-top:2px;font-weight:700">CDMX</div>
       </div>
     </div>
-    <div style="display:flex;align-items:center;padding:9px 14px;
-                border-bottom:1px solid #151515;border-left:3px solid #f97316">
+    <div style="display:flex;align-items:stretch;padding:9px 14px;
+                border-bottom:1px solid #141414;border-left:3px solid #f97316">
       <!-- día -->
-      <div style="width:32px;text-align:center;flex-shrink:0;margin-right:10px">
-        <div style="font-size:7px;font-weight:800;color:#f97316;letter-spacing:.5px">VIE</div>
-        <div style="font-size:17px;font-weight:900;color:#fff;line-height:1.05">5</div>
+      <div style="width:34px;flex-shrink:0;margin-right:11px;padding-top:1px">
+        <div style="font-size:7px;font-weight:800;color:#f97316;letter-spacing:.5px;text-align:center">VIE</div>
+        <div style="font-size:18px;font-weight:900;color:#fff;line-height:1;text-align:center">5</div>
       </div>
-      <!-- info -->
-      <div style="flex:1;min-width:0;overflow:hidden">
-        <div style="font-size:7.5px;color:#444;font-weight:700;white-space:nowrap;
-                    overflow:hidden;text-overflow:ellipsis;margin-bottom:1px">
-            🏀 NBA — NBA FINALS - GAME 
+      <!-- info — bloque con ancho fijo para que el ellipsis funcione -->
+      <div style="flex:1;min-width:0">
+        <!-- liga -->
+        <div style="font-size:7px;color:#3a3a3a;font-weight:700;
+                    white-space:nowrap;overflow:hidden;text-overflow:ellipsis;margin-bottom:2px">
+            🏀 NBA — NBA FINALS - GAME 2
         </div>
-        <div style="font-size:12px;font-weight:800;color:#fff;white-space:nowrap;
-                    overflow:hidden;text-overflow:ellipsis;display:flex;align-items:center">
-            San Antonio Spurs<span style="color:#f97316;font-size:8px;margin-left:3px">●</span><span style="background:#f9731622;color:#f97316;border-radius:3px;padding:1px 5px;font-size:7px;font-weight:800;letter-spacing:.5px;margin-left:4px">🏆 NBA FINALS</span>
+        <!-- tag encima del nombre -->
+        <span style="display:inline-block;background:#f9731622;color:#f97316;border-radius:3px;padding:1px 5px;font-size:7px;font-weight:800;letter-spacing:.5px;margin-bottom:3px">🏆 NBA FINALS</span>
+        <!-- nombre partido: bloque, no flex → ellipsis funciona -->
+        <div style="font-size:12.5px;font-weight:800;color:#fff;
+                    white-space:nowrap;overflow:hidden;text-overflow:ellipsis;
+                    display:block;line-height:1.2">
+            <span style="color:#f97316;font-size:7px;margin-right:4px">●</span>San Antonio Spurs
         </div>
-        <div style="margin-top:3px;display:flex;align-items:center;gap:4px">
-            <span style="background:#ffffff10;border-radius:3px;padding:1px 5px;font-size:8px;color:#777;font-weight:600">·ABC</span>
-        </div>
-        <div style="font-size:8.5px;color:#555;font-style:italic;margin-top:3px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">"NBA Finals en casa. San Antonio Spurs vs New York Knicks — Rama dice que…"</div>
+        <!-- canal -->
+        <div style="margin-top:4px"><span style="background:#ffffff0f;border-radius:3px;padding:1px 6px;font-size:7.5px;color:#666;font-weight:600">·ABC</span></div>
+        <div style="font-size:8px;color:#4a4a4a;font-style:italic;margin-top:3px;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden;line-height:1.35">"NBA Finals en casa. San Antonio Spurs vs New York Knicks — Rama dice que lo ve pero siempre se duerm…"</div>
       </div>
-      <!-- hora -->
-      <div style="flex-shrink:0;margin-left:10px;text-align:right">
-        <div style="font-size:15px;font-weight:900;color:#fff;line-height:1;
-                    white-space:nowrap">18:30</div>
-        <div style="font-size:6.5px;color:#333;margin-top:1px;font-weight:600">CDMX</div>
+      <!-- hora — alineada al centro verticalmente -->
+      <div style="flex-shrink:0;margin-left:10px;display:flex;flex-direction:column;
+                  justify-content:center;align-items:flex-end">
+        <div style="font-size:16px;font-weight:900;color:#fff;line-height:1;white-space:nowrap">
+            18:30
+        </div>
+        <div style="font-size:6.5px;color:#2e2e2e;margin-top:2px;font-weight:700">CDMX</div>
       </div>
     </div>
-    <div style="display:flex;align-items:center;padding:9px 14px;
-                border-bottom:1px solid #151515;border-left:3px solid #ef4444">
+    <div style="display:flex;align-items:stretch;padding:9px 14px;
+                border-bottom:1px solid #141414;border-left:3px solid #ef4444">
       <!-- día -->
-      <div style="width:32px;text-align:center;flex-shrink:0;margin-right:10px">
-        <div style="font-size:7px;font-weight:800;color:#ef4444;letter-spacing:.5px">SÁB</div>
-        <div style="font-size:17px;font-weight:900;color:#fff;line-height:1.05">6</div>
+      <div style="width:34px;flex-shrink:0;margin-right:11px;padding-top:1px">
+        <div style="font-size:7px;font-weight:800;color:#ef4444;letter-spacing:.5px;text-align:center">SÁB</div>
+        <div style="font-size:18px;font-weight:900;color:#fff;line-height:1;text-align:center">6</div>
       </div>
-      <!-- info -->
-      <div style="flex:1;min-width:0;overflow:hidden">
-        <div style="font-size:7.5px;color:#444;font-weight:700;white-space:nowrap;
-                    overflow:hidden;text-overflow:ellipsis;margin-bottom:1px">
+      <!-- info — bloque con ancho fijo para que el ellipsis funcione -->
+      <div style="flex:1;min-width:0">
+        <!-- liga -->
+        <div style="font-size:7px;color:#3a3a3a;font-weight:700;
+                    white-space:nowrap;overflow:hidden;text-overflow:ellipsis;margin-bottom:2px">
             🏎 F1 2026
         </div>
-        <div style="font-size:12px;font-weight:800;color:#fff;white-space:nowrap;
-                    overflow:hidden;text-overflow:ellipsis;display:flex;align-items:center">
-            Clasificación — Monaco Grand…<span style="color:#ef4444;font-size:8px;margin-left:3px">●</span><span style="background:#ef444422;color:#ef4444;border-radius:3px;padding:1px 5px;font-size:7px;font-weight:800;letter-spacing:.5px;margin-left:4px">⏱ QUALY</span>
+        <!-- tag encima del nombre -->
+        <span style="display:inline-block;background:#ef444422;color:#ef4444;border-radius:3px;padding:1px 5px;font-size:7px;font-weight:800;letter-spacing:.5px;margin-bottom:3px">⏱ QUALY</span>
+        <!-- nombre partido: bloque, no flex → ellipsis funciona -->
+        <div style="font-size:12.5px;font-weight:800;color:#fff;
+                    white-space:nowrap;overflow:hidden;text-overflow:ellipsis;
+                    display:block;line-height:1.2">
+            <span style="color:#ef4444;font-size:7px;margin-right:4px">●</span>Clasificación — Monaco Grand Prix
         </div>
-        <div style="margin-top:3px;display:flex;align-items:center;gap:4px">
-            <span style="background:#ffffff10;border-radius:3px;padding:1px 5px;font-size:8px;color:#777;font-weight:600">·F1 TV</span>
-        </div>
-        <div style="font-size:8.5px;color:#555;font-style:italic;margin-top:3px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">"Guillo apostó que Colap no suma puntos. El viernes a las 23 se define la…"</div>
+        <!-- canal -->
+        <div style="margin-top:4px"><span style="background:#ffffff0f;border-radius:3px;padding:1px 6px;font-size:7.5px;color:#666;font-weight:600">·F1 TV</span></div>
+        <div style="font-size:8px;color:#4a4a4a;font-style:italic;margin-top:3px;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden;line-height:1.35">"Guillo apostó que Colap no suma puntos. El viernes a las 23 se define la grilla — alguien va a tener…"</div>
       </div>
-      <!-- hora -->
-      <div style="flex-shrink:0;margin-left:10px;text-align:right">
-        <div style="font-size:15px;font-weight:900;color:#fff;line-height:1;
-                    white-space:nowrap">08:00</div>
-        <div style="font-size:6.5px;color:#333;margin-top:1px;font-weight:600">CDMX</div>
+      <!-- hora — alineada al centro verticalmente -->
+      <div style="flex-shrink:0;margin-left:10px;display:flex;flex-direction:column;
+                  justify-content:center;align-items:flex-end">
+        <div style="font-size:16px;font-weight:900;color:#fff;line-height:1;white-space:nowrap">
+            08:00
+        </div>
+        <div style="font-size:6.5px;color:#2e2e2e;margin-top:2px;font-weight:700">CDMX</div>
       </div>
     </div>
-    <div style="display:flex;align-items:center;padding:9px 14px;
-                border-bottom:1px solid #151515;border-left:3px solid #ef4444">
+    <div style="display:flex;align-items:stretch;padding:9px 14px;
+                border-bottom:1px solid #141414;border-left:3px solid #ef4444">
       <!-- día -->
-      <div style="width:32px;text-align:center;flex-shrink:0;margin-right:10px">
-        <div style="font-size:7px;font-weight:800;color:#ef4444;letter-spacing:.5px">VIE</div>
-        <div style="font-size:17px;font-weight:900;color:#fff;line-height:1.05">5</div>
+      <div style="width:34px;flex-shrink:0;margin-right:11px;padding-top:1px">
+        <div style="font-size:7px;font-weight:800;color:#ef4444;letter-spacing:.5px;text-align:center">VIE</div>
+        <div style="font-size:18px;font-weight:900;color:#fff;line-height:1;text-align:center">5</div>
       </div>
-      <!-- info -->
-      <div style="flex:1;min-width:0;overflow:hidden">
-        <div style="font-size:7.5px;color:#444;font-weight:700;white-space:nowrap;
-                    overflow:hidden;text-overflow:ellipsis;margin-bottom:1px">
+      <!-- info — bloque con ancho fijo para que el ellipsis funcione -->
+      <div style="flex:1;min-width:0">
+        <!-- liga -->
+        <div style="font-size:7px;color:#3a3a3a;font-weight:700;
+                    white-space:nowrap;overflow:hidden;text-overflow:ellipsis;margin-bottom:2px">
             🏎 F1 2026
         </div>
-        <div style="font-size:12px;font-weight:800;color:#fff;white-space:nowrap;
-                    overflow:hidden;text-overflow:ellipsis;display:flex;align-items:center">
-            Práctica 1 — Monaco Grand Prix<span style="background:#ef444422;color:#ef4444;border-radius:3px;padding:1px 5px;font-size:7px;font-weight:800;letter-spacing:.5px;margin-left:4px">🏎 PRÁCTICA</span>
+        <!-- tag encima del nombre -->
+        <span style="display:inline-block;background:#ef444422;color:#ef4444;border-radius:3px;padding:1px 5px;font-size:7px;font-weight:800;letter-spacing:.5px;margin-bottom:3px">🏎 PRÁCTICA</span>
+        <!-- nombre partido: bloque, no flex → ellipsis funciona -->
+        <div style="font-size:12.5px;font-weight:800;color:#fff;
+                    white-space:nowrap;overflow:hidden;text-overflow:ellipsis;
+                    display:block;line-height:1.2">
+            Práctica 1 — Monaco Grand Prix
         </div>
-        <div style="margin-top:3px;display:flex;align-items:center;gap:4px">
-            <span style="background:#ffffff10;border-radius:3px;padding:1px 5px;font-size:8px;color:#777;font-weight:600">·F1 TV</span>
-        </div>
-        <div style="font-size:8.5px;color:#555;font-style:italic;margin-top:3px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">"F1 en vivo. Práctica 1 — Monaco Grand Prix — para los que no tienen mied…"</div>
+        <!-- canal -->
+        <div style="margin-top:4px"><span style="background:#ffffff0f;border-radius:3px;padding:1px 6px;font-size:7.5px;color:#666;font-weight:600">·F1 TV</span></div>
+        <div style="font-size:8px;color:#4a4a4a;font-style:italic;margin-top:3px;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden;line-height:1.35">"F1 en vivo. Práctica 1 — Monaco Grand Prix — para los que no tienen miedo de madrugar o trasnochar."</div>
       </div>
-      <!-- hora -->
-      <div style="flex-shrink:0;margin-left:10px;text-align:right">
-        <div style="font-size:15px;font-weight:900;color:#fff;line-height:1;
-                    white-space:nowrap">05:30</div>
-        <div style="font-size:6.5px;color:#333;margin-top:1px;font-weight:600">CDMX</div>
+      <!-- hora — alineada al centro verticalmente -->
+      <div style="flex-shrink:0;margin-left:10px;display:flex;flex-direction:column;
+                  justify-content:center;align-items:flex-end">
+        <div style="font-size:16px;font-weight:900;color:#fff;line-height:1;white-space:nowrap">
+            05:30
+        </div>
+        <div style="font-size:6.5px;color:#2e2e2e;margin-top:2px;font-weight:700">CDMX</div>
       </div>
     </div>
       <div style="padding:6px 14px;font-size:8px;color:#333;font-style:italic">+ 3 eventos más — ver agenda completa</div>

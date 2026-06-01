@@ -106,74 +106,82 @@ def _hero(events):
 
 # ── Fila de evento ────────────────────────────────────────────────
 def _row(e, relato=""):
-    color = SPORT_COLOR.get(e["sport"], "#6366f1")
-    icon  = SPORT_ICON.get(e["sport"], "🏟")
-    day   = _day_label(e["date"])
-    dn    = e["date"].day
-    tags  = e.get("display_tags", [])
-    tag   = tags[0] if tags else ""
+    color  = SPORT_COLOR.get(e["sport"], "#6366f1")
+    icon   = SPORT_ICON.get(e["sport"], "🏟")
+    day    = _day_label(e["date"])
+    dn     = e["date"].day
+    tags   = e.get("display_tags", [])
+    tag    = tags[0] if tags else ""
     is_fav = e.get("favorite", False)
 
-    # Nombre partido — truncado sin cortar, en 2 líneas si es necesario
-    if e.get("away") and e["sport"] in ("Fútbol","Rugby"):
+    # Nombre del partido — construido para que el ellipsis funcione en bloque
+    if e.get("away") and e["sport"] in ("Fútbol", "Rugby"):
         h = " ".join(e["home"].split()[:2])
         a = " ".join(e["away"].split()[:2])
         match_line = f"{h} vs {a}"
     else:
-        match_line = e.get("home","")
-    if len(match_line) > 30:
-        match_line = match_line[:28] + "…"
+        match_line = e.get("home", "")
 
-    # Canal
-    ch_raw = e.get("broadcast","")
-    ch = ch_raw.split("/")[0].split(",")[0].strip()[:14]
-    ch_html = f'<span style="background:#ffffff10;border-radius:3px;padding:1px 5px;font-size:8px;color:#777;font-weight:600">·{ch}</span>' if ch else ""
+    # Canal — primer valor antes de / o ,
+    ch = e.get("broadcast", "").split("/")[0].split(",")[0].strip()[:16]
+    ch_html = (
+        f'<span style="background:#ffffff0f;border-radius:3px;padding:1px 6px;'
+        f'font-size:7.5px;color:#666;font-weight:600">·{ch}</span>'
+    ) if ch else ""
 
-    # Tag de relevancia
+    # Tag de relevancia — sobre el nombre del partido (línea separada)
     tag_html = (
-        f'<span style="background:{color}22;color:{color};border-radius:3px;'
-        f'padding:1px 5px;font-size:7px;font-weight:800;letter-spacing:.5px;margin-left:4px">'
-        f'{tag}</span>'
+        f'<span style="display:inline-block;background:{color}22;color:{color};'
+        f'border-radius:3px;padding:1px 5px;font-size:7px;font-weight:800;'
+        f'letter-spacing:.5px;margin-bottom:3px">{tag}</span>'
     ) if tag else ""
 
-    # Relato (máx 1 línea, ~72 chars)
-    relato_trim = (relato[:72] + "…") if len(relato) > 72 else relato
-    relato_html = (
-        f'<div style="font-size:8.5px;color:#555;font-style:italic;'
-        f'margin-top:3px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">'
-        f'"{relato_trim}"</div>'
-    ) if relato_trim else ""
+    fav_dot = f'<span style="color:{color};font-size:7px;margin-right:4px">●</span>' if is_fav else ""
 
-    fav_dot = f'<span style="color:{color};font-size:8px;margin-left:3px">●</span>' if is_fav else ""
+    # Relato — 2 líneas máximo, text-overflow en elemento bloque con width fijo
+    relato_html = ""
+    if relato:
+        r = relato[:100] + "…" if len(relato) > 100 else relato
+        relato_html = (
+            f'<div style="font-size:8px;color:#4a4a4a;font-style:italic;margin-top:3px;'
+            f'display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;'
+            f'overflow:hidden;line-height:1.35">"{r}"</div>'
+        )
 
     return f"""
-    <div style="display:flex;align-items:center;padding:9px 14px;
-                border-bottom:1px solid #151515;border-left:3px solid {color}">
+    <div style="display:flex;align-items:stretch;padding:9px 14px;
+                border-bottom:1px solid #141414;border-left:3px solid {color}">
       <!-- día -->
-      <div style="width:32px;text-align:center;flex-shrink:0;margin-right:10px">
-        <div style="font-size:7px;font-weight:800;color:{color};letter-spacing:.5px">{day}</div>
-        <div style="font-size:17px;font-weight:900;color:#fff;line-height:1.05">{dn}</div>
+      <div style="width:34px;flex-shrink:0;margin-right:11px;padding-top:1px">
+        <div style="font-size:7px;font-weight:800;color:{color};letter-spacing:.5px;text-align:center">{day}</div>
+        <div style="font-size:18px;font-weight:900;color:#fff;line-height:1;text-align:center">{dn}</div>
       </div>
-      <!-- info -->
-      <div style="flex:1;min-width:0;overflow:hidden">
-        <div style="font-size:7.5px;color:#444;font-weight:700;white-space:nowrap;
-                    overflow:hidden;text-overflow:ellipsis;margin-bottom:1px">
-            {icon} {e.get('league','')[:24].upper()}
+      <!-- info — bloque con ancho fijo para que el ellipsis funcione -->
+      <div style="flex:1;min-width:0">
+        <!-- liga -->
+        <div style="font-size:7px;color:#3a3a3a;font-weight:700;
+                    white-space:nowrap;overflow:hidden;text-overflow:ellipsis;margin-bottom:2px">
+            {icon} {e.get('league','')[:28].upper()}
         </div>
-        <div style="font-size:12px;font-weight:800;color:#fff;white-space:nowrap;
-                    overflow:hidden;text-overflow:ellipsis;display:flex;align-items:center">
-            {match_line}{fav_dot}{tag_html}
+        <!-- tag encima del nombre -->
+        {tag_html}
+        <!-- nombre partido: bloque, no flex → ellipsis funciona -->
+        <div style="font-size:12.5px;font-weight:800;color:#fff;
+                    white-space:nowrap;overflow:hidden;text-overflow:ellipsis;
+                    display:block;line-height:1.2">
+            {fav_dot}{match_line}
         </div>
-        <div style="margin-top:3px;display:flex;align-items:center;gap:4px">
-            {ch_html}
-        </div>
+        <!-- canal -->
+        <div style="margin-top:4px">{ch_html}</div>
         {relato_html}
       </div>
-      <!-- hora -->
-      <div style="flex-shrink:0;margin-left:10px;text-align:right">
-        <div style="font-size:15px;font-weight:900;color:#fff;line-height:1;
-                    white-space:nowrap">{e.get('time_mx','TBD')}</div>
-        <div style="font-size:6.5px;color:#333;margin-top:1px;font-weight:600">CDMX</div>
+      <!-- hora — alineada al centro verticalmente -->
+      <div style="flex-shrink:0;margin-left:10px;display:flex;flex-direction:column;
+                  justify-content:center;align-items:flex-end">
+        <div style="font-size:16px;font-weight:900;color:#fff;line-height:1;white-space:nowrap">
+            {e.get('time_mx','TBD')}
+        </div>
+        <div style="font-size:6.5px;color:#2e2e2e;margin-top:2px;font-weight:700">CDMX</div>
       </div>
     </div>"""
 
@@ -220,13 +228,14 @@ def generate_card_html(events, resumen, relatos_map):
 
   <!-- wordmark -->
   <div style="text-align:center;padding:0 14px 8px;flex-shrink:0">
-    <div style="font-size:40px;font-weight:900;color:#fff;letter-spacing:-2px;line-height:1">KOLEOS</div>
-    <div style="font-size:10px;font-weight:800;color:#1f1f1f;letter-spacing:7px;margin-top:-2px">CDMX</div>
+    <div style="font-size:22px;font-weight:900;color:#fff;letter-spacing:1px;line-height:1">
+        AGENDA DEPORTIVA
+    </div>
     <div style="display:inline-flex;align-items:center;gap:5px;margin-top:5px;
                 background:#111;border-radius:20px;padding:3px 11px;border:1px solid #1c1c1c">
       <span style="color:#f59e0b;font-size:7px">✦</span>
       <span style="font-size:7.5px;font-weight:700;color:#444;letter-spacing:2px;text-transform:uppercase">
-          Agenda Deportiva · {date_range}
+          {date_range} · CDMX
       </span>
       <span style="color:#f59e0b;font-size:7px">✦</span>
     </div>
