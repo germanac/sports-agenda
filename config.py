@@ -1,50 +1,55 @@
-# Intereses del grupo Koleos — ajustar acá según preferencias
+# ─── Grupo Koleos ────────────────────────────────────────────────
 GROUP_NAME = "Koleos"
+TIMEZONE   = "America/Mexico_City"
 
-# Ligas de fútbol a seguir (IDs de TheSportsDB)
-FOOTBALL_LEAGUES = {
-    "Argentine Primera División": "4406",
-    "Copa de la Liga Argentina": "4797",
-    "UEFA Champions League": "4480",
-    "Copa del Rey": "4331",
-    "LaLiga": "4335",
+# ─── Equipos favoritos de fútbol ─────────────────────────────────
+FAVORITE_FOOTBALL_TEAMS = [
+    "River Plate",       # Ger + Guillo
+    "Estudiantes",       # Manuel
+    "Boca Juniors",      # Nacho/Rama
+]
+
+# Selecciones de fútbol que siempre interesan al grupo
+TOP_NATIONAL_TEAMS = [
+    "Argentina", "Brazil", "France", "Spain", "England",
+    "Germany", "Portugal", "Uruguay", "Netherlands", "Italy",
+]
+
+# Selecciones consideradas "menores" en grupo stage (filtrar en fase de grupos)
+MINOR_NATIONS = {
+    "San Marino", "Andorra", "Gibraltar", "Liechtenstein",
+    "Faroe Islands", "Malta", "Kosovo", "Moldova", "Armenia",
+    "Cabo Verde", "Nigeria (friendly)", "Haiti", "Qatar",
+    "Comoros", "Djibouti", "Eritrea",
 }
 
-# Equipos favoritos (para destacar partidos)
-FAVORITE_TEAMS = [
-    "River Plate",
-    "Estudiantes",
-    "Boca Juniors",
-    "Barcelona",
-    "Real Madrid",
+# ─── Rugby ────────────────────────────────────────────────────────
+RUGBY_PRIORITY_TEAMS = ["Argentina", "Pumas"]  # prioridad absoluta
+RUGBY_MAJOR_COMPETITIONS = [
+    "Rugby World Cup", "Rugby Championship", "Six Nations",
+    "The Rugby Championship", "Rugby World Cup Sevens",
+    "Pacific Nations Cup",
 ]
 
-# Deportes adicionales
-TRACK_F1 = True
-TRACK_NBA = True
-TRACK_TENNIS = True  # Grand Slams y Masters
-
-# Torneo tennis activos (manual, se actualizan por temporada)
-ACTIVE_TENNIS_TOURNAMENTS = [
-    "Roland Garros",
-    "Wimbledon",
-    "US Open",
-    "Australian Open",
-    "Masters 1000",
-]
-
-# Dónde se transmite en México (canal -> plataforma)
+# ─── Transmisiones en México ──────────────────────────────────────
 MEXICO_BROADCAST = {
-    "Champions League": "HBO Max",
-    "Copa del Rey": "ESPN",
-    "LaLiga": "ESPN / Star+",
-    "Argentine Primera": "Star+",
-    "Copa de la Liga": "Star+",
-    "F1": "F1 TV / ESPN",
-    "NBA": "NBA League Pass / ESPN",
-    "Tennis Grand Slam": "ESPN / Star+",
-    "Mundial 2026": "Televisa / Azteca / HBO Max",
+    "World Cup":            "Televisa / TV Azteca / HBO Max",
+    "Argentine Primera":    "Star+",
+    "Copa Libertadores":    "Star+",
+    "Copa Sudamericana":    "Star+",
+    "Champions League":     "HBO Max / ESPN",
+    "Premier League":       "Sky Sports / ESPN",
+    "LaLiga":               "Sky Sports / Star+",
+    "Copa del Rey":         "ESPN",
+    "F1":                   "F1 TV / ESPN",
+    "NBA":                  "NBA League Pass / ESPN",
+    "Rugby":                "ESPN / Star+",
+    "Tennis":               "ESPN / Star+",
 }
 
-# Timezone para horarios
-TIMEZONE = "America/Mexico_City"
+# ─── Switches ─────────────────────────────────────────────────────
+TRACK_F1      = True
+TRACK_RUGBY   = True
+TRACK_TENNIS  = True
+TRACK_NBA     = True
+TRACK_NFL     = True   # solo playoffs/Super Bowl

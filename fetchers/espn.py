@@ -1,81 +1,70 @@
 """
-Fetcher principal usando la API pública de ESPN.
-Cubre fútbol ARG/EUR, NBA, y detalles de transmisión.
-No requiere API key.
+Fetcher principal — ESPN API pública (sin key).
+Cubre: fútbol ARG/EUR, Mundial, NBA, Rugby.
 """
 import requests
 from datetime import datetime, timedelta
 import pytz
 import sys, os
 sys.path.insert(0, os.path.dirname(os.path.dirname(__file__)))
-from config import FAVORITE_TEAMS, MEXICO_BROADCAST, TIMEZONE
+from config import FAVORITE_FOOTBALL_TEAMS, MEXICO_BROADCAST, TIMEZONE
 
 BASE = "https://site.api.espn.com/apis/site/v2/sports"
 MX_TZ = pytz.timezone(TIMEZONE)
 
-# (slug_ESPN, nombre_display, clave_broadcast_config)
 FOOTBALL_SLUGS = [
-    ("arg.1",                    "Argentine Primera División",   "Argentine Primera"),
-    ("conmebol.libertadores",    "Copa Libertadores",            "Argentine Primera"),
-    ("conmebol.sudamericana",    "Copa Sudamericana",            "Argentine Primera"),
-    ("esp.1",                    "LaLiga",                       "LaLiga"),
-    ("esp.copa_del_rey",         "Copa del Rey",                 "Copa del Rey"),
+    ("FIFA.WORLD",                "FIFA World Cup 2026",         "World Cup"),
+    ("arg.1",                     "Argentine Primera División",   "Argentine Primera"),
+    ("conmebol.libertadores",     "Copa Libertadores",            "Copa Libertadores"),
+    ("conmebol.sudamericana",     "Copa Sudamericana",            "Copa Sudamericana"),
+    ("UEFA.CHAMPIONS_LEAGUE",     "UEFA Champions League",        "Champions League"),
+    ("eng.1",                     "Premier League",               "Premier League"),
+    ("esp.1",                     "LaLiga",                       "LaLiga"),
+    ("esp.copa_del_rey",          "Copa del Rey",                 "Copa del Rey"),
 ]
-
-# IDs ESPN de equipos favoritos (fútbol ARG)
-FAVORITE_TEAM_IDS = {
-    "16": "River Plate",
-    "5":  "Boca Juniors",
-    "8":  "Estudiantes de La Plata",
-}
 
 
 def _get(url, params=None):
     try:
         r = requests.get(url, params=params, timeout=10)
+        if r.status_code == 400:
+            return {}   # liga fuera de temporada — silencioso
         r.raise_for_status()
         return r.json()
     except Exception as e:
-        print(f"    [ESPN] Error {url}: {e}")
+        if "400" not in str(e):
+            print(f"    [ESPN] Error {url.split('/')[-2]}: {e}")
         return {}
 
 
 def _utc_to_mx(date_str):
-    """Convierte ISO date string UTC a hora México."""
     try:
         dt = datetime.fromisoformat(date_str.replace("Z", "+00:00"))
         dt_mx = dt.astimezone(MX_TZ)
-        return dt_mx.date(), dt_mx.strftime("%H:%M"), dt_mx
+        return dt_mx.date(), dt_mx.strftime("%H:%M")
     except Exception:
-        return None, "TBD", None
+        return None, "TBD"
 
 
 def _is_favorite(competitors):
     for c in competitors:
-        team_id = str(c.get("id", ""))
         name = c.get("team", {}).get("displayName", "")
-        if team_id in FAVORITE_TEAM_IDS:
+        if any(fav.lower() in name.lower() for fav in FAVORITE_FOOTBALL_TEAMS):
             return True
-        for fav in FAVORITE_TEAMS:
-            if fav.lower() in name.lower():
-                return True
     return False
 
 
-def _parse_broadcast(comps, default_key):
-    """Extrae canal de transmisión o usa el default de config."""
-    broadcasts = comps.get("broadcasts", [])
-    if broadcasts:
-        names = broadcasts[0].get("names", [])
+def _broadcast(comps, default_key):
+    for b in comps.get("broadcasts", []):
+        names = b.get("names", [])
         if names:
-            return ", ".join(names)
-    return MEXICO_BROADCAST.get(default_key, "ESPN / Star+")
+            return ", ".join(names[:2])
+    return MEXICO_BROADCAST.get(default_key, "ESPN")
 
 
-def _parse_competition(event, sport_name, league_name, broadcast_key):
-    """Normaliza un evento ESPN al formato interno."""
-    date_str = event.get("date", "")
-    event_date, time_mx, dt_mx = _utc_to_mx(date_str)
+def _parse_event(raw, sport, league_name, broadcast_key):
+    date_str = raw.get("date", "")
+    event_date, time_mx = _utc_to_mx(date_str)
     if event_date is None:
         return None
 
@@ -83,105 +72,97 @@ def _parse_competition(event, sport_name, league_name, broadcast_key):
     if not (today <= event_date <= today + timedelta(days=7)):
         return None
 
-    comps = event.get("competitions", [{}])[0]
+    comps = raw.get("competitions", [{}])[0]
     competitors = comps.get("competitors", [])
-    names = [c.get("team", {}).get("displayName", c.get("athlete", {}).get("displayName", "")) for c in competitors]
+    names = [
+        c.get("team", {}).get("displayName", c.get("athlete", {}).get("displayName", ""))
+        for c in competitors
+    ]
 
-    home = names[0] if len(names) > 0 else event.get("name", "")
-    away = names[1] if len(names) > 1 else ""
-
-    home_badge = ""
-    away_badge = ""
-    if len(competitors) >= 2:
-        home_badge = competitors[0].get("team", {}).get("logo", "")
-        away_badge = competitors[1].get("team", {}).get("logo", "")
+    # Nota de fase (ej: "Round of 16", "NBA Finals - Game 1")
+    notes = comps.get("notes", [])
+    note  = notes[0].get("headline", "") if notes else ""
 
     return {
-        "sport": sport_name,
-        "league": league_name,
-        "home": home,
-        "away": away,
-        "date": event_date,
-        "time_mx": time_mx,
-        "broadcast": _parse_broadcast(comps, broadcast_key),
-        "favorite": _is_favorite(competitors),
-        "home_badge": home_badge,
-        "away_badge": away_badge,
+        "sport":      sport,
+        "league":     league_name,
+        "home":       names[0] if names else raw.get("name", ""),
+        "away":       names[1] if len(names) > 1 else "",
+        "date":       event_date,
+        "time_mx":    time_mx,
+        "broadcast":  _broadcast(comps, broadcast_key),
+        "favorite":   _is_favorite(competitors),
+        "note":       note,
+        "home_badge": competitors[0].get("team", {}).get("logo", "") if competitors else "",
+        "away_badge": competitors[1].get("team", {}).get("logo", "") if len(competitors) > 1 else "",
     }
 
 
-def fetch_football_week():
-    """Trae partidos de fútbol de los próximos 7 días."""
-    all_events = []
+def _fetch_slug(sport_path, slug, league_name, broadcast_key, sport_label="Fútbol"):
+    events = []
     today = datetime.now(MX_TZ)
+    seen = set()
+    for d in range(8):
+        date = (today + timedelta(days=d)).strftime("%Y%m%d")
+        data = _get(f"{BASE}/{sport_path}/{slug}/scoreboard", params={"dates": date})
+        for raw in data.get("events", []):
+            eid = raw.get("id")
+            if eid in seen:
+                continue
+            seen.add(eid)
+            evt = _parse_event(raw, sport_label, league_name, broadcast_key)
+            if evt:
+                events.append(evt)
+    return events
 
-    for slug, league_name, broadcast_key in FOOTBALL_SLUGS:
+
+def fetch_football_week():
+    all_events = []
+    for slug, league_name, bcast_key in FOOTBALL_SLUGS:
         print(f"    {league_name}...")
-        # ESPN scoreboard devuelve eventos del día; iterar días relevantes
-        seen = set()
-        for day_offset in range(8):
-            date = today + timedelta(days=day_offset)
-            data = _get(f"{BASE}/soccer/{slug}/scoreboard",
-                        params={"dates": date.strftime("%Y%m%d")})
-            for event in data.get("events", []):
-                eid = event.get("id")
-                if eid in seen:
-                    continue
-                seen.add(eid)
-                evt = _parse_competition(event, "Fútbol", league_name, broadcast_key)
-                if evt:
-                    all_events.append(evt)
-
+        all_events.extend(_fetch_slug("soccer", slug, league_name, bcast_key, "Fútbol"))
     return all_events
 
 
 def fetch_nba_week():
-    """Trae partidos de NBA / playoffs de los próximos 7 días."""
     print("    NBA...")
-    all_events = []
+    events = []
     today = datetime.now(MX_TZ)
     seen = set()
-
-    for day_offset in range(8):
-        date = today + timedelta(days=day_offset)
-        data = _get(f"{BASE}/basketball/nba/scoreboard",
-                    params={"dates": date.strftime("%Y%m%d")})
-        for event in data.get("events", []):
-            eid = event.get("id")
+    for d in range(8):
+        date = (today + timedelta(days=d)).strftime("%Y%m%d")
+        data = _get(f"{BASE}/basketball/nba/scoreboard", params={"dates": date})
+        for raw in data.get("events", []):
+            eid = raw.get("id")
             if eid in seen:
                 continue
             seen.add(eid)
-
-            date_str = event.get("date", "")
-            event_date, time_mx, _ = _utc_to_mx(date_str)
+            event_date, time_mx = _utc_to_mx(raw.get("date",""))
             if event_date is None:
                 continue
-
-            comps = event.get("competitions", [{}])[0]
+            comps = raw.get("competitions", [{}])[0]
             competitors = comps.get("competitors", [])
             names = [c.get("team", {}).get("displayName", "") for c in competitors]
             notes = comps.get("notes", [])
-            note_text = notes[0].get("headline", "") if notes else ""
-
-            all_events.append({
-                "sport": "NBA",
-                "league": f"NBA{' — ' + note_text if note_text else ''}",
-                "home": names[0] if names else "",
-                "away": names[1] if len(names) > 1 else "",
-                "date": event_date,
-                "time_mx": time_mx,
-                "broadcast": _parse_broadcast(comps, "NBA"),
-                "favorite": False,
-                "home_badge": competitors[0].get("team", {}).get("logo", "") if competitors else "",
-                "away_badge": competitors[1].get("team", {}).get("logo", "") if len(competitors) > 1 else "",
+            note  = notes[0].get("headline", "") if notes else ""
+            events.append({
+                "sport":      "NBA",
+                "league":     f"NBA — {note}" if note else "NBA",
+                "home":       names[0] if names else "",
+                "away":       names[1] if len(names) > 1 else "",
+                "date":       event_date,
+                "time_mx":    time_mx,
+                "broadcast":  _broadcast(comps, "NBA"),
+                "favorite":   False,
+                "note":       note,
+                "home_badge": competitors[0].get("team",{}).get("logo","") if competitors else "",
+                "away_badge": competitors[1].get("team",{}).get("logo","") if len(competitors)>1 else "",
             })
-
-    return all_events
+    return events
 
 
 def fetch_week():
-    """Entry point principal — trae todo."""
     events = []
     events.extend(fetch_football_week())
     events.extend(fetch_nba_week())
-    return sorted(events, key=lambda x: (x["date"], x.get("time_mx", "")))
+    return events
