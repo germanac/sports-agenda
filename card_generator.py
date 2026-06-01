@@ -54,8 +54,7 @@ INFO_W   = CARD_W - PAD_L - PAD_R - DAY_W - GAP_DAY - GAP_TIME - TIME_W  # 254px
 
 # Límites de caracteres (conservadores — calculados arriba)
 CHARS_LEAGUE   = 36    # 7px
-CHARS_NAME     = 27    # 12.5px bold, sin tag
-CHARS_NAME_TAG = 18    # 12.5px bold, con tag (tag ocupa ~85px)
+CHARS_NAME     = 30    # 12px bold, ancho completo (tag va en línea separada)
 CHARS_CHANNEL  = 18    # 7.5px
 CHARS_RELATO   = 54    # 8px italic
 
@@ -215,8 +214,7 @@ def _row(e, relato=""):
 
     # ── Strings truncados en Python ──────────────────────────────
     league_str  = _t((e.get("league") or "").upper(), CHARS_LEAGUE)
-    name_limit  = CHARS_NAME_TAG if tag else CHARS_NAME
-    name_str    = _t(_match_name(e), name_limit)
+    name_str    = _t(_match_name(e), CHARS_NAME)
     channel_str = _t(e.get("broadcast","").split("/")[0].split(",")[0].strip(), CHARS_CHANNEL)
     relato_str  = _t(relato, CHARS_RELATO)
 
@@ -264,12 +262,12 @@ def _row(e, relato=""):
           {icon} {league_str}
         </div>
 
-        <!-- Nombre: 1 línea, flex para tag + texto -->
-        <div style="display:flex;align-items:center;margin-bottom:4px;overflow:hidden;height:16px">
-          {tag_html}
-          {dot}
+        <!-- Tag: línea propia (solo si existe) -->
+        {(f'<div style="margin-bottom:3px;height:14px;overflow:hidden">{tag_html}</div>') if tag_html else ''}
+        <!-- Nombre: línea propia, ancho completo garantizado -->
+        <div style="margin-bottom:4px;height:16px;overflow:hidden">
           <span style="font-size:{name_px};font-weight:{name_w};color:{name_col};
-                       white-space:nowrap;line-height:1">{name_str}</span>
+                       white-space:nowrap">{dot}{name_str}</span>
         </div>
 
         <!-- Canal: 1 línea -->
