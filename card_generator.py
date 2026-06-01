@@ -38,8 +38,8 @@ GAP2        = 8
 RESUMEN_H   = 90
 GAP3        = 8
 CRONO_HDR_H = 22
-ROW_H       = 96
-MAX_ROWS    = 5
+ROW_H       = 80
+MAX_ROWS    = 6
 MORE_H      = 20
 FOOTER_H    = 24
 
@@ -242,13 +242,7 @@ def _row(e, relato=""):
     time_px   = "17px"  if featured else "15px"
     time_col  = "#fff"  if featured else "#ccc"
 
-    # ── Relato ───────────────────────────────────────────────────
-    relato_html = ""
-    if relato_str:
-        relato_html = (
-            f'<div style="margin-top:2px;font-size:8px;color:#3d3d3d;font-style:italic;'
-            f'white-space:nowrap;overflow:hidden">"{relato_str}"</div>'
-        )
+    relato_html = ""  # relatos van en el texto WhatsApp, no en la imagen
 
     return f"""
     <div style="height:{ROW_H}px;overflow:hidden;{bg}
